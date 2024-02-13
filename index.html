@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Toplantı Listesi</title>
+</head>
+<body>
+<div class="container">
+    <h2>Toplantı Listesi</h2>
+    <button id="newMeetingBtn" onclick="openMeetingForm()">Yeni Toplantı Ekle</button>
+    <ul id="meetingList">
+        <!-- Toplantılar dinamik olarak buraya eklenecek -->
+    </ul>
+</div>
+
+<!-- Düzenleme Sayfası Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeEditModal()">&times;</span>
+        <h3>Düzenleme Sayfası</h3>
+        <form id="editForm">
+            <!-- Düzenleme Formu Alanları -->
+            <label for="editMeetingSubject">Toplantı Konusu:</label>
+            <input type="text" id="editMeetingSubject" name="editMeetingSubject" required>
+
+            <label for="editMeetingDate">Tarih:</label>
+            <input type="date" id="editMeetingDate" name="editMeetingDate" required>
+
+            <label for="editStartTime">Başlangıç Saati:</label>
+            <input type="time" id="editStartTime" name="editStartTime" required>
+
+            <label for="editEndTime">Bitiş Saati:</label>
+            <input type="time" id="editEndTime" name="editEndTime" required>
+
+            <label for="editParticipants">Katılımcılar:</label>
+            <textarea id="editParticipants" name="editParticipants" rows="4" required></textarea>
+
+            <button type="submit">Güncelle</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Yeni toplantı ekleme butonuna tıklanınca çağrılır
+    function openMeetingForm() {
+        // Yeni toplantı ekleme sayfası için yönlendirme yapılabilir veya bir modal pencere açılabilir
+        // Örneğin:
+        window.location.href = "toplanti_formu.html";
+    }
+
+    // Düzenleme modalını açma işlevi
+    function openEditModal() {
+        // Düzenleme modalı açılır ve toplantı bilgileri buraya doldurulur
+        // Örneğin:
+        document.getElementById("editModal").style.display = "block";
+    }
+
+    // Düzenleme modalını kapatma işlevi
+    function closeEditModal() {
+        document.getElementById("editModal").style.display = "none";
+    }
+
+    // Her bir toplantı için düzenleme butonuna tıklanınca çağrılır ve ilgili toplantının düzenleme modalı açılır
+    function editMeeting(meetingId) {
+        // İlgili toplantının bilgilerini almak ve düzenleme modalında göstermek için gerekli işlemler yapılır
+        // Örneğin:
+        openEditModal();
+        // Toplantı bilgileri düzenleme formuna doldurulabilir
+    }
+
+    // Örnek olarak toplantıları dinamik olarak listeleyebiliriz
+    // Bu kısımda JavaScript ile veri alınarak, toplantıları listeleyen kodlar olabilir
+    // Ancak, gerçek bir uygulamada bu veriler sunucudan gelecektir.
+    // Burada sadece bir örnek gösterilmektedir.
+    var meetings = [
+        { id: 1, subject: "Toplantı 1", date: "2024-02-11", startTime: "09:00", endTime: "10:00", participants: "Katılımcı 1, Katılımcı 2" },
+        { id: 2, subject: "Toplantı 2", date: "2024-02-12", startTime: "11:00", endTime: "12:00", participants: "Katılımcı 3, Katılımcı 4" },
+        // Burada diğer toplantılar da eklenebilir
+    ];
+
+    var meetingList = document.getElementById("meetingList");
+    meetings.forEach(function(meeting) {
+        var li = document.createElement("li");
+        li.textContent = meeting.subject;
+
+        var editBtn = document.createElement("button");
+        editBtn.textContent = "Düzenle";
+        editBtn.onclick = function() {
+            editMeeting(meeting.id);
+        };
+
+        li.appendChild(editBtn);
+        meetingList.appendChild(li);
+    });
+</script>
+</body>
+</html>

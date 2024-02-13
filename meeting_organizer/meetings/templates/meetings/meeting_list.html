@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting List</title>
+    <style>
+        /* Modal styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            padding-top: 100px; /* Location of the modal */
+        }
+
+        /* Modal content */
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        /* Close button */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body id="meetingList">
+
+<!-- Add New Meeting Button -->
+<button onclick="openAddForm()">Add New Meeting</button>
+
+<h1>Meeting List</h1>
+<ul >
+    {% for meeting in meetings %}
+    <li>
+        <strong>{{ meeting.subject }}</strong> -
+        Date: {{ meeting.date }},
+        Time: {{ meeting.start_time }} - {{ meeting.end_time }},
+        Participants: {{ meeting.participants }}
+        <button onclick="openEditForm({{ meeting.id }})">Edit</button>
+    </li>
+    {% empty %}
+    <li>No meetings available.</li>
+    {% endfor %}
+</ul>
+
+<!-- Add Form Modal -->
+<div id="addModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeAddForm()">&times;</span>
+        <h2>Add New Meeting</h2>
+        <form id="addMeetingForm" onsubmit="return false;">
+            {% csrf_token %}
+            <label for="subject">Subject:</label>
+            <input type="text" id="subject" name="subject" required>
+            <label for="date">Date:</label>
+            <input type="date" id="date" name="date" required>
+            <label for="startTime">Start Time:</label>
+            <input type="time" id="startTime" name="startTime" required>
+            <label for="endTime">End Time:</label>
+            <input type="time" id="endTime" name="endTime" required>
+            <label for="participants">Participants:</label>
+            <textarea id="participants" name="participants" rows="4" required></textarea>
+            <button onclick="addMeeting()">Add Meeting</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Function to open the add form modal
+    function openAddForm() {
+        var modal = document.getElementById('addModal');
+        modal.style.display = "block";
+    }
+
+    // Function to close the add form modal
+    function closeAddForm() {
+        var modal = document.getElementById('addModal');
+        modal.style.display = "none";
+    }
+
+    // Function to add a new meeting
+    // Function to add a new meeting
+    function addMeeting() {
+        var form = document.getElementById('addMeetingForm');
+        var formData = new FormData(form);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/add_meeting/');
+        xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                // Handle successful response
+                console.log(xhr.responseText);  // Print server response to the console
+                closeAddForm();// Close the modal
+                updateMeetingList();
+            } else {
+                // Handle error
+                console.error('Error:', xhr.statusText);
+            }
+        };
+        xhr.onerror = function() {
+            // Handle network error
+            console.error('Network Error');
+        };
+        xhr.send(formData);
+    }
+
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    // Function to update the meeting list
+    function updateMeetingList() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/meeting_list/'); // Update URL to match the endpoint that renders the meeting list
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                // Replace the existing meeting list with the updated one
+                var meetingListContainer = document.getElementById('meetingList');
+                meetingListContainer.innerHTML = xhr.responseText;
+            } else {
+                // Handle error
+                console.error('Error:', xhr.statusText);
+            }
+        };
+        xhr.onerror = function() {
+            // Handle network error
+            console.error('Network Error');
+        };
+        xhr.send();
+    }
+</script>
+</body>
+</html>
